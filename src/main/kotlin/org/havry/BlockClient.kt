@@ -14,16 +14,13 @@ import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 
-class BlockClient(private val baseUrl: String,
+@Suppress("unused")
+class BlockClient(private val httpClient: HttpClient,
+                  private val baseUrl: String,
                   private val apiKey: String) {
 
     private val gson = Gson()
     private val executor = Executors.newSingleThreadExecutor()
-    private val client = HttpClient
-        .newBuilder()
-        .version(HttpClient.Version.HTTP_2)
-        .followRedirects(HttpClient.Redirect.NORMAL)
-        .build()
 
     fun getUser(uuid: UUID): CompletableFuture<User> {
         return CompletableFuture.supplyAsync({
@@ -94,7 +91,7 @@ class BlockClient(private val baseUrl: String,
     }
 
     private fun execute(endpoint: String, method: String, body: BodyPublisher = HttpRequest.BodyPublishers.noBody()): HttpResponse<String> {
-        return client.send(
+        return httpClient.send(
             baseRequest(endpoint, method, body),
             BodyHandlers.ofString()
         )

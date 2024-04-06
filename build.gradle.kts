@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "org.havry"
-version = "1.0-SNAPSHOT"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -25,7 +25,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "org.havry"
             artifactId = "block-client"
-            version = "1.0.1"
+            version = "1.0.2"
 
             from(components["java"])
         }
