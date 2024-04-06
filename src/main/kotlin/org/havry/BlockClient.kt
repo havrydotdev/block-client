@@ -108,13 +108,15 @@ class BlockClient(private val httpClient: HttpClient,
         }, executor)
     }
 
-    fun getSkin(userUUID: UUID): CompletableFuture<Unit> {
+    fun getSkin(userUUID: UUID): CompletableFuture<Skin> {
         return CompletableFuture.supplyAsync({
             try {
-                execute(
+                val resp = execute(
                     "$skinEndpoint?user_uuid=$userUUID",
                     "GET",
                 )
+
+                fromJson(resp.body(), Skin::class.java)
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }
