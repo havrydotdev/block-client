@@ -1,6 +1,7 @@
 package org.havry
 
 import com.google.gson.Gson
+import org.havry.entities.Skin
 import org.havry.entities.UpdateUserDTO
 import org.havry.entities.User
 import java.net.URI
@@ -22,11 +23,14 @@ class BlockClient(private val httpClient: HttpClient,
     private val gson = Gson()
     private val executor = Executors.newSingleThreadExecutor()
 
+    private val userEndpoint = "/user"
+    private val skinEndpoint = "/skin"
+
     fun getUser(uuid: UUID): CompletableFuture<User> {
         return CompletableFuture.supplyAsync({
             try {
                 val resp = execute(
-                    "/user?uuid=$uuid", "GET"
+                    "$userEndpoint?uuid=$uuid", "GET"
                 )
 
                 fromJson(resp.body(), User::class.java)
@@ -40,7 +44,7 @@ class BlockClient(private val httpClient: HttpClient,
         return CompletableFuture.supplyAsync({
             try {
                 val resp = execute(
-                    "/user?username=$username", "GET"
+                    "$userEndpoint?username=$username", "GET"
                 )
 
                 fromJson(resp.body(), User::class.java)
@@ -54,7 +58,7 @@ class BlockClient(private val httpClient: HttpClient,
         return CompletableFuture.supplyAsync({
             try {
                 execute(
-                    "/user",
+                    userEndpoint,
                     "POST",
                     HttpRequest.BodyPublishers.ofString(toJson(user))
                 )
@@ -68,7 +72,7 @@ class BlockClient(private val httpClient: HttpClient,
         return CompletableFuture.supplyAsync({
             try {
                 execute(
-                    "/user",
+                    userEndpoint,
                     "PATCH",
                     HttpRequest.BodyPublishers.ofString(toJson(dto))
                 )
@@ -82,7 +86,47 @@ class BlockClient(private val httpClient: HttpClient,
         return CompletableFuture.supplyAsync({
             try {
                 execute(
-                    "/user/$uuid", "DELETE"
+                    "$userEndpoint/$uuid", "DELETE"
+                )
+            } catch (e: Exception) {
+                throw RuntimeException(e)
+            }
+        }, executor)
+    }
+
+    fun createSkin(skin: Skin): CompletableFuture<Unit> {
+        return CompletableFuture.supplyAsync({
+            try {
+                execute(
+                    skinEndpoint,
+                    "POST",
+                    HttpRequest.BodyPublishers.ofString(toJson(skin))
+                )
+            } catch (e: Exception) {
+                throw RuntimeException(e)
+            }
+        }, executor)
+    }
+
+    fun getSkin(userUUID: UUID): CompletableFuture<Unit> {
+        return CompletableFuture.supplyAsync({
+            try {
+                execute(
+                    "$skinEndpoint?user_uuid=$userUUID",
+                    "GET",
+                )
+            } catch (e: Exception) {
+                throw RuntimeException(e)
+            }
+        }, executor)
+    }
+
+    fun deleteSkin(userUUID: UUID): CompletableFuture<Unit> {
+        return CompletableFuture.supplyAsync({
+            try {
+                execute(
+                    "$skinEndpoint/$userUUID",
+                    "DELETE"
                 )
             } catch (e: Exception) {
                 throw RuntimeException(e)
